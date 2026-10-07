@@ -1,14 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "outDir": "dist",
     "rootDir": "./src",
     "strict": true,
-    "skipLibCheck": false,
-    "forceConsistentImports": true,
     "noEmitOnError": true
   },
   "include": ["src/**/*.ts"],
