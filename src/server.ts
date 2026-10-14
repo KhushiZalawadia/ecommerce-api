@@ -9,9 +9,10 @@
 import express from "express";
 import cors from "cors";
 import { Port } from "./config/env.js";
-import { dbPing } from "./config/db.js";
+import { dbPing, dbTestConnection } from "./config/db.js";
 import { ok } from "./utils/responds.js";
-import { swaggerHtmlPage, openapiYaml } from "./swagger.js";
+import { swaggerHtmlPage } from "./swagger.js";
+import  { openapiYaml } from "./openapi.js";
 import authRouter from "./routes/auth.js";
 import productRouter from "./routes/product.js";
 
@@ -37,14 +38,6 @@ app.get("/health", async (req, res) => {
     "Service health check"
   ));
 });
-app.get("/test-html", (req, res) => {
-  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-  res.end("<h1>Test — if you see a HEDING, HTML works</h1>");
-});
-app.get("/test-swagger", (req, res) => {
-  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-  res.end(swaggerHtmlPage());
-});
 
 app.get("/swagger", (req, res) => {
   res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
@@ -68,3 +61,10 @@ app.listen(Port, async () => {
   console.log(`  Health: [http://localhost:${Port}/health]`);
   console.log(`=======================================`);
 });
+
+async function startServer() {
+  await dbTestConnection();
+  console.log('Server started');
+}
+
+startServer();

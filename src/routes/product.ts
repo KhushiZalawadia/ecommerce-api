@@ -15,6 +15,7 @@ const router = express.Router();
 
 // ---------------------------------------------------------
 //  READ  —  any logged-in user (isAuth)
+// here we are passing middleware to the route handlers, which will be executed before the controller functions. This ensures that only authenticated users can access these endpoints.
 // ---------------------------------------------------------
 router.get("/", isAuth, list);          // GET    /api/product
 router.get("/:id", isAuth, getOne);     // GET    /api/product/:id

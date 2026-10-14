@@ -35,13 +35,24 @@ const ProductSchema = z.object({
 export async function list(req: any, res: any) {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
-
-  const products = await listProducts(page, limit);
-  const total = await countProducts();
+  try{
+     const products = await listProducts(page, limit);
+     const total = await countProducts();
 
   return res.json(
     ok({ products, page, limit, total }, "Products fetched")
   );
+  }
+  catch (error) {
+  console.error('List products:', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Product fetch failed',
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
+
+
 }
 
 // =========================================================
@@ -49,12 +60,23 @@ export async function list(req: any, res: any) {
 // =========================================================
 export async function getOne(req: any, res: any) {
   const id = Number(req.params.id);
-  if (!id) return res.status(400).json(fail("Invalid product id"));
+  try{
+      if (!id) return res.status(400).json(fail("Invalid product id"));
 
   const product = await findProductById(id);
   if (!product) return res.status(404).json(fail("Product not found"));
 
   return res.json(ok(product, "Product fetched"));
+  }
+  catch (error) {
+  console.error('Get product by id :', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Product fetch by id failed',
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
+
 }
 
 // =========================================================
@@ -62,7 +84,8 @@ export async function getOne(req: any, res: any) {
 // =========================================================
 export async function create(req: any, res: any) {
   const parsed = ProductSchema.safeParse(req.body);
-  if (!parsed.success) {
+  try{
+ if (!parsed.success) {
     return res.status(400).json(fail("Validation failed", parsed.error));
   }
   const d = parsed.data;
@@ -74,6 +97,14 @@ export async function create(req: any, res: any) {
   return res.status(201).json(
     ok({ id, createdBy: req.user.email }, "Product created")
   );
+  }catch (error) {
+  console.error('Add product:', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Product creation failed',
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
 }
 
 // =========================================================
@@ -81,7 +112,8 @@ export async function create(req: any, res: any) {
 // =========================================================
 export async function update(req: any, res: any) {
   const id = Number(req.params.id);
-  if (!id) return res.status(400).json(fail("Invalid product id"));
+ try{
+   if (!id) return res.status(400).json(fail("Invalid product id"));
 
   const parsed = ProductSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -95,6 +127,16 @@ export async function update(req: any, res: any) {
   if (!changed) return res.status(404).json(fail("Product not found"));
 
   return res.json(ok({ id }, "Product updated"));
+ }
+  catch (error) {
+  console.error('Update product:', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Product update failed',
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
+  
 }
 
 // =========================================================
@@ -102,10 +144,19 @@ export async function update(req: any, res: any) {
 // =========================================================
 export async function remove(req: any, res: any) {
   const id = Number(req.params.id);
-  if (!id) return res.status(400).json(fail("Invalid product id"));
+try{
+    if (!id) return res.status(400).json(fail("Invalid product id"));
 
   const done = await softDeleteProduct(id);
   if (!done) return res.status(404).json(fail("Product not found"));
 
   return res.json(ok({ id }, "Product removed"));
+}catch (error) {
+  console.error('Remove product:', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Product removal failed',
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
 }

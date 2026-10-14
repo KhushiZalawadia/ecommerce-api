@@ -58,8 +58,13 @@ export async function register(req: any, res: any) {
     ok({ id: newId, name, email, role }, "Registered successfully")
   );
   } catch (error) {
-    return res.status(503).json(fail("Database unavailable — MySQL not installed yet?"));
-  }
+  console.error('REGISTER DB ERROR:', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Register failed',
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
  
 }
 
@@ -78,7 +83,8 @@ export async function login(req: any, res: any) {
 
   // 2. Find the user.
   const user = await findUserByEmail(email);
-  if (!user) {
+ try{
+   if (!user) {
     // Note: same message as a wrong password — see "Why" below.
     return res.status(401).json(fail("Invalid credentials"));
   }
@@ -94,4 +100,14 @@ export async function login(req: any, res: any) {
 
   // 5. Response — token ONLY. No hash, no other row internals.
   return res.json(ok({ token }, "Login successful"));
+ }
+  catch (error) {
+  console.error('LOGIN DB ERROR:', error);
+  return res.status(500).json({
+    success: false,
+    message: 'Login failed',
+    error: error instanceof Error ? error.message : String(error),
+    
+  });
+}
 }
